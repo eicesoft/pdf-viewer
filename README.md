@@ -1,4 +1,5 @@
-# pdf
+# Pdf viewer Demo
+PDF预览插件。 多页直接展示, Pdf的签章可以正常显示（vue-pdf 签章直接丢失）。
 
 ## Project setup
 ```
@@ -19,6 +20,3 @@ yarn build
 ```
 yarn lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
