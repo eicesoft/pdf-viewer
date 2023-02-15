@@ -1,24 +1,18 @@
 <template>
   <div
-    :style="{ width: width + 10 + 'px', height: height + 'px' }"
+    :style="{ width: width + 8 + 'px', height: height + 'px' }"
     class="viewerContainer"
-    ref="contrainer"
   >
-    <canvas
-      v-for="num in pageCount"
-      ref="canvas"
-      name="canvas"
-      class="pdf-page"
-      :key="num"
-    />
+    <canvas v-for="num in pageCount" class="pdf-page" :key="num" />
   </div>
 </template>
 
 <script>
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
+// import * as pdfjsViewer from "pdfjs-dist/legacy/web/pdf_viewer";
+// console.log(pdfjsViewer);
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
-
 export default {
   name: "PdfView",
   components: {},
@@ -30,23 +24,17 @@ export default {
     },
     height: {
       type: Number,
-      default: 800
+      default: 1024
     }
   },
   data() {
     return {
       pdfDoc: null, // pdfjs 生成的对象
       pageNum: 1, //
-      scale: 1.0, // 放大倍数
+      scale: 1, // 放大倍数
       pageCount: 0 // 总页数
     };
   },
-  // computed: {
-  //   ctx() {
-  //     const id = document.getElementById("the-canvas");
-  //     return id.getContext("2d");
-  //   }
-  // },
   created() {
     const vm = this;
     pdfjsLib.getDocument(this.src).promise.then(pdfDocument => {
@@ -55,36 +43,16 @@ export default {
       vm.renderPage(vm.pageNum);
     });
   },
-
-  mounted() {
-    // const vm = this;
-    // this.$nextTick(() => {
-    //   console.log("nextTick", this.$refs.canvas);
-    // });
-    // const vm = this;
-    // this.$nextTick(() => {
-    // pdfjsLib.getDocument(vm.src).promise.then(pdfDocument => {
-    //   // console.log(pdfDocument);
-    //   vm.pdfDoc = pdfDocument;
-    //   vm.pageCount = pdfDocument.numPages;
-    //   vm.render(vm.pageNum);
-    // });
-    // });
-  },
   methods: {
     renderPage(num) {
       const canvas_list = document.getElementsByClassName("pdf-page");
-
-      // const canvas = document.getElementById("the-canvas");
-      // const canvas = this.$refs.canvas;
       const vm = this;
       this.pdfDoc.getPage(num).then(page => {
         const canvas = canvas_list[num - 1];
-
-        var defViewport = page.getViewport({ scale: vm.scale });
-        var scale = vm.width / defViewport.width;
-        var viewport = page.getViewport({ scale: scale });
-        var outputScale = window.devicePixelRatio || 1;
+        const defViewport = page.getViewport({ scale: vm.scale });
+        let scale = vm.width / defViewport.width;
+        const viewport = page.getViewport({ scale: scale });
+        const outputScale = window.devicePixelRatio || 1;
 
         console.log([canvas_list, canvas, viewport, outputScale]);
 
@@ -102,12 +70,8 @@ export default {
           transform: transform
         };
         let renderTask = page.render(renderContext);
-        // Wait for rendering to finish
+
         renderTask.promise.then(function () {
-          // vm.pageRendering = false;
-          // vm.pageNumPending =
-          // if (vm.pageNumPending !== null) {
-          // New page rendering is pending
           console.log("Render next page:", vm.pageNum, vm.pageCount);
           if (vm.pageNum < vm.pageCount) {
             vm.pageNum++;
@@ -115,7 +79,6 @@ export default {
 
             vm.renderPage(vm.pageNum);
           }
-          // }
         });
       });
     }
@@ -125,14 +88,22 @@ export default {
 
 <style scoped>
 .viewerContainer {
+  padding: 8px;
   border-radius: 6px;
-  overflow-x: auto;
+  overflow: auto;
   border: 1px solid #ececec;
+  background: rgba(158, 158, 158, 0.9);
+  display: flex;
+  height: 700px;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .viewerContainer::-webkit-scrollbar {
   width: 7px;
-  height: 1px;
+  height: 7px;
 }
 
 .viewerContainer::-webkit-scrollbar-thumb {
@@ -147,13 +118,12 @@ export default {
 }
 
 .pdf-page {
-  padding: 10px 0;
   display: block;
-  border-bottom: 1px solid #ececec;
+  margin: 0 0 8px 0;
   /* box-shadow: 1px 1px 3px rgba(197, 197, 197, 0.2); */
 }
-.pdf-page:first-child,
+
 .pdf-page:last-child {
-  padding: 0;
+  margin: 0 0 0 0;
 }
 </style>
